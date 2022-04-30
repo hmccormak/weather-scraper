@@ -16,6 +16,13 @@ class current_data:
     vis: str = None
     last: str = None
 
+@dataclass
+class extended_data:
+    per: str = None
+    des: str = None
+    temp: str = None
+
+
 def get_search(zip):
     geolocator = Nominatim(user_agent='weatherbot')
     coords = geolocator.geocode(zip, country_codes='us')
@@ -46,8 +53,34 @@ def get_current(soup):
     )
     
 def get_extended(soup):
+    extended_periods = []
+
+    ## REWORK
+    for data in soup.findAll(class_ = 'period-name'):
+        x = data.contents
+        for i in range(len(x)):
+            y = []
+            if str(x[i]) != '<br/>':
+                y.append(x[i])
+            if y != []:
+                extended_periods.append(y)
+
+    temp_list = []
+
     for data in soup.findAll(class_ = 'short-desc'):
-        print(data.string)
+        temp_list.append(data.contents)
+
+    extended_description = [len(temp_list)]
+
+    for row in range(len(temp_list)):
+        for col in range(len(temp_list[row])):
+            print(type(temp_list[row][col]))
+
+    print(temp_list)
+            
+
+
+    
 
 def main(zip):
     weather_data = get_search(zip)
