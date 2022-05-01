@@ -129,4 +129,4 @@ def main(zip):
     print(f'Condition: {w_data[0].cond} | Temp: {w_data[0].far}/{w_data[0].cel} | Humidity: {w_data[0].hum}')
 
 
-main('20782')
+main('90210')
