@@ -23,6 +23,15 @@ class extended_data:
 
 
 def get_search(zip):
+    """Get weather.gov page based off of zipcode
+
+    Args:
+        zip (int): given zipcode
+
+    Returns:
+        bs4.BeautifulSoup: parsed html
+        string: geocode address (city, county, state, zipcode, country)
+    """
     geolocator = Nominatim(user_agent='weatherbot')
     location = geolocator.geocode(zip, country_codes='us')
     url = f'https://forecast.weather.gov/MapClick.php?lat={location.latitude}&lon={location.longitude}'
@@ -32,13 +41,24 @@ def get_search(zip):
     return (soup, location.address)
 
 def get_current(soup):
+    """Get current weather.gov data from the page soup
+
+    Args:
+        soup (bs4.BeautifulSoup): parsed html
+
+    Returns:
+        object: current_data object of scraped info
+    """
     cur_summary = []
+
+    print(type(soup))
     for data in soup.find(id = 'current_conditions-summary'):
         if data.string != '\n':
             if data.string != None:
                 cur_summary.append(data.string)
     
     cur_detail = []
+
     for data in soup.findAll('td'):
         cur_detail.append(data.string)
 
@@ -67,12 +87,24 @@ def get_ext_data(soup, class_name):
 
 def clean_ext_data(data_list):
     cleaned_list = []
+
     for i in range(len(data_list)):
         cleaned_list.append(' '.join(data_list[i]))
     return cleaned_list       
     
 def get_extended(soup):
+    """Get extended weather.gov data from page soup,
+    uses get_ext_data() and clean_ext_data() in processing,
+    probably should consolidate these functions
+
+    Args:
+        soup (bs4.BeautifulSoup): parsed html
+
+    Returns:
+        list: list of extended_data objects for each period listing
+    """
     extended_temps = []
+
     for data in soup.findAll(class_ = 'temp'):
         extended_temps.append(data.string)
     
@@ -94,7 +126,7 @@ def main(zip):
     s_data = get_search(zip)
     w_data = (get_current(s_data[0]), get_extended(s_data[0]))
     print(f'Current Weather of {s_data[1]}:')
-    print(f'Condition: {w_data[0].cond}| Temp: {w_data[0].far}/{w_data[0].cel} | Humidity: {w_data[0].hum}')
+    print(f'Condition: {w_data[0].cond} | Temp: {w_data[0].far}/{w_data[0].cel} | Humidity: {w_data[0].hum}')
 
 
-main('90210')
+main('20782')
