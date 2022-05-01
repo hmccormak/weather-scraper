@@ -1,4 +1,3 @@
-from re import search
 import requests
 from dataclasses import dataclass
 from bs4 import BeautifulSoup
@@ -25,13 +24,12 @@ class extended_data:
 
 def get_search(zip):
     geolocator = Nominatim(user_agent='weatherbot')
-    coords = geolocator.geocode(zip, country_codes='us')
-    url = f'https://forecast.weather.gov/MapClick.php?lat={coords.latitude}&lon={coords.longitude}'
+    location = geolocator.geocode(zip, country_codes='us')
+    url = f'https://forecast.weather.gov/MapClick.php?lat={location.latitude}&lon={location.longitude}'
     page = requests.get(url)
-    soup = BeautifulSoup(page.content, "html.parser")
+    soup = BeautifulSoup(page.content, 'html.parser')
     
-    get_current(soup)
-    get_extended(soup)
+    return (soup, location.address)
 
 def get_current(soup):
     cur_summary = []
@@ -44,46 +42,59 @@ def get_current(soup):
     for data in soup.findAll('td'):
         cur_detail.append(data.string)
 
-    cur_detail[11] = cur_detail[11].replace("\n", '')
+    if cur_detail[11] == None:
+        cur_detail[11] = "No update timestamp!"
+    cur_detail[11] = cur_detail[11].replace('\n', '')
     cur_detail[11] = cur_detail[11].strip()
     
     search_current_data =  current_data(
     cur_summary[0], cur_summary[1], cur_summary[2], cur_detail[1], 
     cur_detail[3], cur_detail[5], cur_detail[7], cur_detail[9], cur_detail[11]
     )
-    
-def get_extended(soup):
-    extended_periods = []
 
-    ## REWORK
-    for data in soup.findAll(class_ = 'period-name'):
-        x = data.contents
-        for i in range(len(x)):
-            y = []
-            if str(x[i]) != '<br/>':
-                y.append(x[i])
-            if y != []:
-                extended_periods.append(y)
+    return search_current_data
 
+def get_ext_data(soup, class_name):
     temp_list = []
 
-    for data in soup.findAll(class_ = 'short-desc'):
-        temp_list.append(data.contents)
+    for data in soup.findAll(class_ = class_name):
+        line_strings = []
+        for line in data:
+            if str(line) != '<br/>':
+                line_strings.append(line)
+        temp_list.append(line_strings)
+    return temp_list
 
-    extended_description = [len(temp_list)]
-
-    for row in range(len(temp_list)):
-        for col in range(len(temp_list[row])):
-            print(type(temp_list[row][col]))
-
-    print(temp_list)
-            
-
-
+def clean_ext_data(data_list):
+    cleaned_list = []
+    for i in range(len(data_list)):
+        cleaned_list.append(' '.join(data_list[i]))
+    return cleaned_list       
     
+def get_extended(soup):
+    extended_temps = []
+    for data in soup.findAll(class_ = 'temp'):
+        extended_temps.append(data.string)
+    
+    period_names_raw = get_ext_data(soup, 'period-name')
+    short_descriptions_raw = get_ext_data(soup, 'short-desc')
 
+    period_names = clean_ext_data(period_names_raw)
+    short_descriptions = clean_ext_data(short_descriptions_raw)
+
+    extended_forecast = []
+
+    for i in range(len(period_names)):
+        extended_forecast.append(extended_data(period_names[i], 
+        short_descriptions[i], extended_temps[i]))
+
+    return extended_forecast 
+    
 def main(zip):
-    weather_data = get_search(zip)
+    s_data = get_search(zip)
+    w_data = (get_current(s_data[0]), get_extended(s_data[0]))
+    print(f'Current Weather of {s_data[1]}:')
+    print(f'Condition: {w_data[0].cond}| Temp: {w_data[0].far}/{w_data[0].cel} | Humidity: {w_data[0].hum}')
 
 
-main('42069')
+main('90210')
