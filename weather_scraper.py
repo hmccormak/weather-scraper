@@ -1,3 +1,4 @@
+import argparse
 import requests
 from dataclasses import dataclass
 from bs4 import BeautifulSoup
@@ -125,8 +126,15 @@ def get_extended(soup):
 def main(zip):
     s_data = get_search(zip)
     w_data = (get_current(s_data[0]), get_extended(s_data[0]))
-    print(f'Current Weather of {s_data[1]}:')
-    print(f'Condition: {w_data[0].cond} | Temp: {w_data[0].far}/{w_data[0].cel} | Humidity: {w_data[0].hum}')
+    print('-=-=-=-=-=-=-=-=-=-=-=|CRAPPY WEATHER SCRAPER|=-=-=-=-=-=-=-=-=-=-=-\n')
+    print(f'~~> Current Weather of {s_data[1]}:')
+    print(f'Condition: {w_data[0].cond} | Temp: {w_data[0].far}/{w_data[0].cel} | Humidity: {w_data[0].hum}\n')
+    print('~~> Extended forecast:')
+    for i in range(len(w_data[1])):
+        print(f'{w_data[1][i].per}: {w_data[1][i].des}, {w_data[1][i].temp}')
 
-
-main('90210')
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-z', type = str, required = True)
+    args = parser.parse_args()
+    main(args.z)
