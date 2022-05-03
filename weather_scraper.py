@@ -48,7 +48,6 @@ def get_current(soup):
     """
     cur_summary = []
 
-    print(type(soup))
     for data in soup.find(id = 'current_conditions-summary'):
         if data.string != '\n':
             if data.string != None:
