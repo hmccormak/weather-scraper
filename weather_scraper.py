@@ -25,10 +25,8 @@ class extended_data:
 
 def get_search(zip):
     """Get weather.gov page based off of zipcode
-
     Args:
         zip (int): given zipcode
-
     Returns:
         bs4.BeautifulSoup: parsed html
         string: geocode address (city, county, state, zipcode, country)
@@ -43,10 +41,8 @@ def get_search(zip):
 
 def get_current(soup):
     """Get current weather.gov data from the page soup
-
     Args:
         soup (bs4.BeautifulSoup): parsed html
-
     Returns:
         object: current_data object of scraped info
     """
@@ -97,10 +93,8 @@ def get_extended(soup):
     """Get extended weather.gov data from page soup,
     uses get_ext_data() and clean_ext_data() in processing,
     probably should consolidate these functions
-
     Args:
         soup (bs4.BeautifulSoup): parsed html
-
     Returns:
         list: list of extended_data objects for each period listing
     """
