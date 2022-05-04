@@ -124,7 +124,7 @@ def main(zip):
     print(f'Condition: {w_data[0].cond} | Temp: {w_data[0].far}/{w_data[0].cel} | Humidity: {w_data[0].hum}\n')
     print('~~> Extended forecast:')
     for i in range(len(w_data[1])):
-        print(f'{w_data[1][i].per}: {w_data[1][i].des}, {w_data[1][i].temp}')
+        print(f'|{w_data[1][i].per}| {w_data[1][i].des}, {w_data[1][i].temp}')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
